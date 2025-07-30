@@ -64,6 +64,8 @@ if st.button("Step 5: Run Filtering"):
 
         for file in data_files:
             df = pd.read_csv(file)
+
+            # Identify source and parse accordingly
             if {"ZoomInfo Contact ID", "LinkedIn Contact Profile URL"}.intersection(df.columns):
                 parsed = parse_zoominfo(df)
             elif {"Person Linkedin Url", "Work Direct Phone", "Departments"}.intersection(df.columns):
@@ -72,6 +74,7 @@ if st.button("Step 5: Run Filtering"):
                 st.warning(f"❌ Skipped unknown format: {file.name}")
                 continue
 
+            # Apply filters
             before = len(parsed)
             parsed = parsed[
                 (~parsed["Domain"].isin(dnc_domains)) &
@@ -97,7 +100,13 @@ if st.button("Step 5: Run Filtering"):
         else:
             for df in filtered_data:
                 if df.empty:
-                    st.warning(f"⚠️ Skipped empty filtered file: {df.get('Source File', ['Unknown'])[0]}")
+                    # Handle missing or empty Source File column safely
+                    if "Source File" in df.columns:
+                        file_label = df["Source File"].iloc[0] if not df["Source File"].empty else "Unknown"
+                    else:
+                        file_label = "Unknown"
+
+                    st.warning(f"⚠️ Skipped empty filtered file: {file_label}")
                     continue
 
                 filename = df["Source File"].iloc[0].replace(".csv", "_filtered.csv")
