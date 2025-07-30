@@ -56,11 +56,12 @@ if st.button("Step 5: Run Filtering"):
     if not domain_file or not email_file or not data_files:
         st.error("⚠️ Please upload all required files.")
     else:
-        dnc_domains = pd.read_csv(domain_file).iloc[:, 0].dropna().tolist()
-        dnc_emails = pd.read_csv(email_file).iloc[:, 0].dropna().tolist()
+        dnc_domains = pd.read_csv(domain_file, encoding='ISO-8859-1').iloc[:, 0].dropna().tolist()
+        dnc_emails = pd.read_csv(email_file, encoding='ISO-8859-1').iloc[:, 0].dropna().tolist()
         unwanted_titles = ["marketing", "sales", "regional", "market", "legal"]
 
         filtered_data = []
+
         for file in data_files:
             df = pd.read_csv(file)
             if {"ZoomInfo Contact ID", "LinkedIn Contact Profile URL"}.intersection(df.columns):
@@ -83,13 +84,24 @@ if st.button("Step 5: Run Filtering"):
             parsed["Source File"] = file.name
             filtered_data.append(parsed)
 
-# --- Step 6: Final Output Download ---
-if merge_data:
-     	    final_df = pd.concat(filtered_data, ignore_index=True)
+        # --- Step 6: Final Output Download ---
+        if merge_data:
+            final_df = pd.concat(filtered_data, ignore_index=True)
             csv = final_df.to_csv(index=False).encode("utf-8")
-            st.download_button("⬇️ Download Merged CSV", data=csv, file_name="filtered_merged.csv", mime="text/csv")
-else:
+            st.download_button(
+                "⬇️ Download Merged CSV",
+                data=csv,
+                file_name="filtered_merged.csv",
+                mime="text/csv"
+            )
+        else:
             for df in filtered_data:
                 filename = df["Source File"].iloc[0].replace(".csv", "_filtered.csv")
                 csv = df.to_csv(index=False).encode("utf-8")
-                st.download_button(f"⬇️ Download {filename}", data=csv, file_name=filename, mime="text/csv")
+                st.download_button(
+                    f"⬇️ Download {filename}",
+                    data=csv,
+                    file_name=filename,
+                    mime="text/csv",
+                    key=filename  # Unique key to avoid Streamlit duplicate errors
+                )
