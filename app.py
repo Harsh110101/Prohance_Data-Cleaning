@@ -51,7 +51,7 @@ def parse_apollo(df):
         "Source": "Apollo"
     })
 
-# --- Step 5: Filter and Show Result ---
+# --- Step 5 & 6: Filter, Show Result, and Download ---
 if st.button("Step 5: Run Filtering"):
     if not domain_file or not email_file or not data_files:
         st.error("⚠️ Please upload all required files.")
@@ -96,6 +96,10 @@ if st.button("Step 5: Run Filtering"):
             )
         else:
             for df in filtered_data:
+                if df.empty:
+                    st.warning(f"⚠️ Skipped empty filtered file: {df.get('Source File', ['Unknown'])[0]}")
+                    continue
+
                 filename = df["Source File"].iloc[0].replace(".csv", "_filtered.csv")
                 csv = df.to_csv(index=False).encode("utf-8")
                 st.download_button(
@@ -103,5 +107,5 @@ if st.button("Step 5: Run Filtering"):
                     data=csv,
                     file_name=filename,
                     mime="text/csv",
-                    key=filename  # Unique key to avoid Streamlit duplicate errors
+                    key=filename  # required to avoid duplicate element errors
                 )
