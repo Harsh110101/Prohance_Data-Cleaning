@@ -61,12 +61,12 @@ if st.button("Step 5: Run Filtering"):
         unwanted_titles = ["marketing", "sales", "regional", "market", "legal"]
 
         filtered_data = []
+        skipped_files = []  # ✅ New list to store names of skipped files
 
         for file in data_files:
             df = pd.read_csv(file)
-            original_file_name = file.name  # ✅ Save filename for later reference
+            original_file_name = file.name  # ✅ Always available
 
-            # Detect and parse by source type
             if {"ZoomInfo Contact ID", "LinkedIn Contact Profile URL"}.intersection(df.columns):
                 parsed = parse_zoominfo(df)
             elif {"Person Linkedin Url", "Work Direct Phone", "Departments"}.intersection(df.columns):
@@ -75,7 +75,6 @@ if st.button("Step 5: Run Filtering"):
                 st.warning(f"❌ Skipped unknown format: {original_file_name}")
                 continue
 
-            # Apply DNC filters
             before = len(parsed)
             parsed = parsed[
                 (~parsed["Domain"].isin(dnc_domains)) &
@@ -85,7 +84,7 @@ if st.button("Step 5: Run Filtering"):
             after = len(parsed)
             st.success(f"✅ {original_file_name}: Filtered {before - after} rows, kept {after}")
 
-            parsed["Source File"] = original_file_name  # ✅ Store filename even for empty outputs
+            parsed["Source File"] = original_file_name
             filtered_data.append(parsed)
 
         # --- Step 6: Final Output Download ---
@@ -102,7 +101,7 @@ if st.button("Step 5: Run Filtering"):
             for df in filtered_data:
                 if df.empty:
                     file_label = df["Source File"].iloc[0] if "Source File" in df.columns and not df["Source File"].empty else "Unknown"
-                    st.warning(f"⚠️ Skipped empty filtered file: {file_label}")
+                    skipped_files.append(file_label)
                     continue
 
                 filename = df["Source File"].iloc[0].replace(".csv", "_filtered.csv")
@@ -112,5 +111,9 @@ if st.button("Step 5: Run Filtering"):
                     data=csv,
                     file_name=filename,
                     mime="text/csv",
-                    key=filename  # required for Streamlit uniqueness
+                    key=filename
                 )
+
+        # ✅ Show all skipped file names after processing
+        if skipped_files:
+            st.warning(f"⚠️ Skipped empty filtered file(s): {', '.join(skipped_files)}")
