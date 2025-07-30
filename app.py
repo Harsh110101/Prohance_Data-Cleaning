@@ -64,17 +64,18 @@ if st.button("Step 5: Run Filtering"):
 
         for file in data_files:
             df = pd.read_csv(file)
+            original_file_name = file.name  # ✅ Save filename for later reference
 
-            # Identify source and parse accordingly
+            # Detect and parse by source type
             if {"ZoomInfo Contact ID", "LinkedIn Contact Profile URL"}.intersection(df.columns):
                 parsed = parse_zoominfo(df)
             elif {"Person Linkedin Url", "Work Direct Phone", "Departments"}.intersection(df.columns):
                 parsed = parse_apollo(df)
             else:
-                st.warning(f"❌ Skipped unknown format: {file.name}")
+                st.warning(f"❌ Skipped unknown format: {original_file_name}")
                 continue
 
-            # Apply filters
+            # Apply DNC filters
             before = len(parsed)
             parsed = parsed[
                 (~parsed["Domain"].isin(dnc_domains)) &
@@ -82,9 +83,9 @@ if st.button("Step 5: Run Filtering"):
                 (~parsed["Title"].str.contains("|".join(unwanted_titles), na=False, case=False))
             ]
             after = len(parsed)
-            st.success(f"✅ {file.name}: Filtered {before - after} rows, kept {after}")
+            st.success(f"✅ {original_file_name}: Filtered {before - after} rows, kept {after}")
 
-            parsed["Source File"] = file.name
+            parsed["Source File"] = original_file_name  # ✅ Store filename even for empty outputs
             filtered_data.append(parsed)
 
         # --- Step 6: Final Output Download ---
@@ -100,12 +101,7 @@ if st.button("Step 5: Run Filtering"):
         else:
             for df in filtered_data:
                 if df.empty:
-                    # Handle missing or empty Source File column safely
-                    if "Source File" in df.columns:
-                        file_label = df["Source File"].iloc[0] if not df["Source File"].empty else "Unknown"
-                    else:
-                        file_label = "Unknown"
-
+                    file_label = df["Source File"].iloc[0] if "Source File" in df.columns and not df["Source File"].empty else "Unknown"
                     st.warning(f"⚠️ Skipped empty filtered file: {file_label}")
                     continue
 
@@ -116,5 +112,5 @@ if st.button("Step 5: Run Filtering"):
                     data=csv,
                     file_name=filename,
                     mime="text/csv",
-                    key=filename  # required to avoid duplicate element errors
+                    key=filename  # required for Streamlit uniqueness
                 )
