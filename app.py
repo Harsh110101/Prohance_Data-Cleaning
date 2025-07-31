@@ -44,31 +44,31 @@ if st.button("Step 6: Run Filtering"):
         filtered_data = []
         skipped_files = []
 
-       def parse_zoominfo(df):
-    return pd.DataFrame({
-        "First Name": df.get("First Name"),
-        "Last Name": df.get("Last Name"),
-        "Full Name": df.get("First Name") + " " + df.get("Last Name"),
-        "Title": df.get("Job Title"),
-        "Seniority": df.get("Management Level"),
-        "Department": df.get("Department"),
-        "Email": df.get("Email Address"),
-        "Domain": df.get("Email Domain"),
-        "Mobile Phone": df.get("Mobile phone"),
-        "Work Phone": df.get("Direct Phone Number"),
-        "Person LinkedIn URL": df.get("LinkedIn Contact Profile URL"),
-        "Person Country": df.get("Country"),
-        "Company Name": df.get("Company Name"),
-        "Website": df.get("Website"),
-        "Country": df.get("Company Country"),
-        "Company Revenue": df.get("Revenue (in 000s USD)").apply(lambda x: int(x * 1000) if pd.notna(x) else x),
-        "Employees": df.get("Employees"),
-        "Industry": df.get("Primary Industry"),
-        "NAICS Code": df.get("NAICS Code 1"),
-        "SIC Code": df.get("SIC Code 1"),
-        "Total number of locations": df.get("Number of Locations"),
-        "Source": "ZoomInfo"
-    })
+        def parse_zoominfo(df):
+            return pd.DataFrame({
+                "First Name": df.get("First Name"),
+                "Last Name": df.get("Last Name"),
+                "Full Name": df.get("First Name") + " " + df.get("Last Name"),
+                "Title": df.get("Job Title"),
+                "Seniority": df.get("Management Level"),
+                "Department": df.get("Department"),
+                "Email": df.get("Email Address"),
+                "Domain": df.get("Email Domain"),
+                "Mobile Phone": df.get("Mobile phone"),
+                "Work Phone": df.get("Direct Phone Number"),
+                "Person LinkedIn URL": df.get("LinkedIn Contact Profile URL"),
+                "Person Country": df.get("Country"),
+                "Company Name": df.get("Company Name"),
+                "Website": df.get("Website"),
+                "Country": df.get("Company Country"),
+                "Company Revenue": df.get("Revenue (in 000s USD)").apply(lambda x: int(x * 1000) if pd.notna(x) else x),
+                "Employees": df.get("Employees"),
+                "Industry": df.get("Primary Industry"),
+                "NAICS Code": df.get("NAICS Code 1"),
+                "SIC Code": df.get("SIC Code 1"),
+                "Total number of locations": df.get("Number of Locations"),
+                "Source": "ZoomInfo"
+            })
 
         def parse_apollo(df):
             df['Domain'] = df['Email'].str.split('@').str[1]
