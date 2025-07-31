@@ -44,32 +44,56 @@ if st.button("Step 6: Run Filtering"):
         filtered_data = []
         skipped_files = []
 
-        def parse_zoominfo(df):
-            return pd.DataFrame({
-                "First Name": df.get("First Name"),
-                "Last Name": df.get("Last Name"),
-                "Full Name": df.get("First Name") + " " + df.get("Last Name"),
-                "Title": df.get("Job Title"),
-                "Email": df.get("Email Address"),
-                "Domain": df.get("Email Address").str.split("@").str[1].str.lower(),
-                "Company Name": df.get("Company Name"),
-                "Website": df.get("Website"),
-                "Person LinkedIn URL": df.get("LinkedIn Contact Profile URL"),
-                "Source": "ZoomInfo"
-            })
+       def parse_zoominfo(df):
+    return pd.DataFrame({
+        "First Name": df.get("First Name"),
+        "Last Name": df.get("Last Name"),
+        "Full Name": df.get("First Name") + " " + df.get("Last Name"),
+        "Title": df.get("Job Title"),
+        "Seniority": df.get("Management Level"),
+        "Department": df.get("Department"),
+        "Email": df.get("Email Address"),
+        "Domain": df.get("Email Domain"),
+        "Mobile Phone": df.get("Mobile phone"),
+        "Work Phone": df.get("Direct Phone Number"),
+        "Person LinkedIn URL": df.get("LinkedIn Contact Profile URL"),
+        "Person Country": df.get("Country"),
+        "Company Name": df.get("Company Name"),
+        "Website": df.get("Website"),
+        "Country": df.get("Company Country"),
+        "Company Revenue": df.get("Revenue (in 000s USD)").apply(lambda x: int(x * 1000) if pd.notna(x) else x),
+        "Employees": df.get("Employees"),
+        "Industry": df.get("Primary Industry"),
+        "NAICS Code": df.get("NAICS Code 1"),
+        "SIC Code": df.get("SIC Code 1"),
+        "Total number of locations": df.get("Number of Locations"),
+        "Source": "ZoomInfo"
+    })
 
         def parse_apollo(df):
-            df["Domain"] = df["Email"].str.split("@").str[1].str.lower()
+            df['Domain'] = df['Email'].str.split('@').str[1]
             return pd.DataFrame({
                 "First Name": df.get("First Name"),
                 "Last Name": df.get("Last Name"),
                 "Full Name": df.get("First Name") + " " + df.get("Last Name"),
                 "Title": df.get("Title"),
-                "Email": df.get("Email").str.lower(),
+                "Seniority": df.get("Seniority"),
+                "Department": df.get("Departments"),
+                "Email": df.get("Email"),
                 "Domain": df.get("Domain"),
+                "Mobile Phone": df.get("Mobile Phone"),
+                "Work Phone": df.get("Work Direct Phone"),
+                "Person LinkedIn URL": df.get("Person Linkedin Url"),
+                "Person Country": df.get("Country"),
                 "Company Name": df.get("Company"),
                 "Website": df.get("Website"),
-                "Person LinkedIn URL": df.get("Person Linkedin Url"),
+                "Country": df.get("Country"),
+                "Company Revenue": df.get("Annual Revenue"),
+                "Employees": df.get("# Employees"),
+                "Industry": df.get("Industry"),
+                "NAICS Code": "",
+                "SIC Code": "",
+                "Total number of locations": df.get("Number of Retail Locations"),
                 "Source": "Apollo"
             })
 
